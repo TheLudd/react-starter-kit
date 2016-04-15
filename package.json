@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "demo": "node demo/server.js",
-    "build": "browserify -t babelify lib/index.js > dist/react-starter-kit.js"
+    "build": "mkdir -p dist && browserify -t babelify lib/index.js > dist/react-starter-kit.js"
   },
   "author": "",
   "license": "ISC",
