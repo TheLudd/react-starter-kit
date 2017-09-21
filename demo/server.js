@@ -1,16 +1,19 @@
 const fs = require('fs')
-const path = require('path')
 const browserify = require('browserify')
 const babelify = require('babelify')
 const watchify = require('watchify')
 const connect = require('connect')
 const serveStatic = require('serve-static')
 const mkdirp = require('mkdirp')
+const less = require('less')
+const NpmImportPlugin = require('less-plugin-npm-import')
+const { normalize, join } = require('path')
 
-const baseDir = path.normalize(__dirname)
-const entryPath = path.normalize(path.join(__dirname, 'bootstrap.jsx'))
-const distFolder = path.join(baseDir, 'dist')
-const bundlePath = path.join(distFolder, 'bundle.js')
+const baseDir = normalize(__dirname)
+const entryPath = normalize(join(__dirname, 'bootstrap.jsx'))
+const distFolder = join(baseDir, 'dist')
+const bundlePath = join(distFolder, 'bundle.js')
+const libDir = normalize(join(baseDir, '..', 'lib'))
 
 mkdirp.sync(distFolder)
 const b = browserify({
@@ -41,10 +44,32 @@ const demoPath = __dirname
 
 server.use(serveStatic(demoPath))
 
+server.use('/style.css', (req, res) => {
+  const lessFilePath = normalize(join(libDir, 'style.less'))
+  const lessFileContent = fs.readFileSync(lessFilePath, 'utf-8')
+  less.render(lessFileContent, {
+    filename: lessFilePath,
+    plugins: [ new NpmImportPlugin({prefix: '~'}) ]
+
+  })
+    .then((result) => {
+      const { css } = result
+      res.setHeader('Content-Type', 'text/css')
+      res.end(css)
+    })
+    .catch((e) => {
+      console.error(e)
+      res.end(500, JSON.stringify(e, null, 2))
+    })
+})
+
 server.listen(port, function () {
   console.log('Demo server running on port', port)
 })
 
 const livereload = require('livereload')
-const lrServer = livereload.createServer()
-lrServer.watch(demoPath)
+const lrServer = livereload.createServer({
+  delay: 500,
+  exts: [ 'jsx', 'less', 'js', 'css' ]
+})
+lrServer.watch([ libDir, demoPath ])
