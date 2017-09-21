@@ -1,19 +1,19 @@
-var fs = require('fs')
-var path = require('path')
-var browserify = require('browserify')
-var babelify = require('babelify')
-var watchify = require('watchify')
-var connect = require('connect')
-var serveStatic = require('serve-static')
-var mkdirp = require('mkdirp')
+const fs = require('fs')
+const path = require('path')
+const browserify = require('browserify')
+const babelify = require('babelify')
+const watchify = require('watchify')
+const connect = require('connect')
+const serveStatic = require('serve-static')
+const mkdirp = require('mkdirp')
 
-var baseDir = path.normalize(__dirname)
-var entryPath = path.normalize(path.join(__dirname, 'bootstrap.jsx'))
-var distFolder = path.join(baseDir, 'dist')
-var bundlePath = path.join(distFolder, 'bundle.js')
+const baseDir = path.normalize(__dirname)
+const entryPath = path.normalize(path.join(__dirname, 'bootstrap.jsx'))
+const distFolder = path.join(baseDir, 'dist')
+const bundlePath = path.join(distFolder, 'bundle.js')
 
 mkdirp.sync(distFolder)
-var b = browserify({
+const b = browserify({
   entries: [entryPath],
   cache: {},
   packageCache: {},
@@ -35,9 +35,9 @@ function bundle () {
   })
 }
 
-var server = connect()
-var port = 3000
-var demoPath = __dirname
+const server = connect()
+const port = 3000
+const demoPath = __dirname
 
 server.use(serveStatic(demoPath))
 
@@ -45,6 +45,6 @@ server.listen(port, function () {
   console.log('Demo server running on port', port)
 })
 
-var livereload = require('livereload')
-var lrServer = livereload.createServer()
+const livereload = require('livereload')
+const lrServer = livereload.createServer()
 lrServer.watch(demoPath)
